@@ -26,11 +26,9 @@ def authorize():
     if username in USERS and USERS[username]['password'] == password:
         # Gerar token de acesso com data de expiração de 1 hora
         token = jwt.encode({'username': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, app.config['SECRET_KEY'], app.config['ALGORITHM'])
-        if request.method == 'POST':
-            return jsonify({'access_token': ('Bearer ' + token)})
-        return redirect('/oauth/callback?access_token=' + token)
+        return jsonify({'access_token': ('Bearer ' + token)})
     else:
-        abort(400, jsonify({'error': 'Credenciais inválidas'}))
+        abort(401, jsonify({'error': 'Credenciais inválidas'}))
 
 @app.route('/oauth/callback')
 def callback():
@@ -45,9 +43,9 @@ def callback():
                 raise jwt.InvalidTokenError
             return jsonify({'username': username})
         except jwt.ExpiredSignatureError:
-            abort(400, jsonify({'error': 'Token expirado'}))
+            abort(403, jsonify({'error': 'Token expirado'}))
         except jwt.InvalidTokenError:
-            abort(400, jsonify({'error': 'Token inválido'}))
+            abort(403, jsonify({'error': 'Token inválido'}))
     else:
         return jsonify({'error': 'Token de acesso não fornecido'})
 

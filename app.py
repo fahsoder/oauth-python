@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 import requests
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ def protegida():
         username = data.get('username')
         return jsonify({'message': f'Bem-vindo, {username}!'})
 
-    return jsonify({'error': 'Token de acesso inválido'})
+    abort(403, jsonify({'error': 'Token inválido'}))
 
 if __name__ == '__main__':
     app.run(port=5001)
